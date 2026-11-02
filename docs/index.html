@@ -101,6 +101,25 @@
       <p>לחצו על <span class="kbd">+ הוספה למבחן</span> ליד שאלה. אפשר לבחור סעיפים, לשנות ניקוד ולסדר מחדש.</p>
     </div>
     <ol id="cart-list" class="cart-list"></ol>
+
+    <div class="exam-score-panel" id="exam-score-panel" role="status"></div>
+    <button type="button" class="btn exam-settings-in-cart" id="cart-exam-settings">⚙ פרטי הבחינה ועיצוב הוורד</button>
+    <div id="convert" class="convert"></div>
+  </div>
+  <div class="cart-foot">
+    <div class="cart-actions">
+      <button type="button" id="export-a" class="btn primary" disabled>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>
+        ייצוא לוורד</button>
+      <button type="button" id="export-b" class="btn" disabled title="השאלות והאפשרויות בסדר מעורבב">טור ב׳</button>
+    </div>
+    <div class="cart-foot-row">
+      <p id="export-status" class="mute small" role="status"></p>
+      <button type="button" id="cart-clear" class="link-btn danger" hidden>ריקון המבחן</button>
+    </div>
+  </div>
+</aside>
+
     <dialog class="exam-settings-modal" id="exam-settings-modal" aria-labelledby="exam-settings-heading">
       <div class="exam-modal-head"><div><h2 id="exam-settings-heading">עיצוב והגדרות הבחינה</h2><p>הגדירי את הפרטים פעם אחת. אפשר לחזור ולערוך בכל שלב.</p></div><button type="button" class="icon-btn" id="close-exam-settings" aria-label="סגירה">✕</button></div>
       <form id="header-form" class="header-form" autocomplete="off">
@@ -123,23 +142,6 @@
       </form>
       <div class="exam-modal-foot"><button type="button" class="btn" id="save-template">שמירת תבנית קבועה</button><button type="button" class="btn primary" id="apply-exam-settings">סיום והמשך לבניית המבחן</button></div><span id="template-status" class="mute small"></span>
     </dialog>
-    <div class="exam-score-panel" id="exam-score-panel" role="status"></div>
-    <button type="button" class="btn exam-settings-in-cart" id="cart-exam-settings">⚙ פרטי הבחינה ועיצוב הוורד</button>
-    <div id="convert" class="convert"></div>
-  </div>
-  <div class="cart-foot">
-    <div class="cart-actions">
-      <button type="button" id="export-a" class="btn primary" disabled>
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>
-        ייצוא לוורד</button>
-      <button type="button" id="export-b" class="btn" disabled title="השאלות והאפשרויות בסדר מעורבב">טור ב׳</button>
-    </div>
-    <div class="cart-foot-row">
-      <p id="export-status" class="mute small" role="status"></p>
-      <button type="button" id="cart-clear" class="link-btn danger" hidden>ריקון המבחן</button>
-    </div>
-  </div>
-</aside>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <button type="button" class="to-top" id="to-top" aria-label="חזרה לראש העמוד" hidden>
