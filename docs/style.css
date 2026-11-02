@@ -412,3 +412,11 @@ body.cart-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Exam designer — additions */
+.exam-score-panel { margin:16px 0 8px; padding:13px 15px; border:1px solid var(--line); background:var(--bg2); border-radius:12px; display:grid; gap:7px; }
+.exam-score-panel small { color:var(--mute); }
+.score-track { height:8px; background:var(--line); overflow:hidden; border-radius:99px; }
+.score-track span { display:block; height:100%; background:var(--acc); border-radius:99px; transition:width .2s; }
+.exam-template-actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-block:12px; }
+.header-form input[type=file] { width:100%; max-width:100%; }
