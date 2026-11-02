@@ -207,45 +207,48 @@ async function questionBlocks(entry, n, perms) {
 
 /* ---------- מסמך ---------- */
 
+function inferredExamTopic() {
+ const subs=new Map(), units=new Map();
+ for(const entry of state.cart) {
+  const q=QS.get(entry.id); if(!q)continue;
+  const sub=SUBS.get(q.main),unit=UNITS.get(q.unit);
+  if(sub)subs.set(sub.name,(subs.get(sub.name)||0)+1);
+  if(unit)units.set(unit.name,(units.get(unit.name)||0)+1);
+ }
+ if(subs.size===1)return [...subs.keys()][0].split(" – ")[0];
+ if(units.size===1)return [...units.keys()][0];
+ if(units.size>1)return [...units.keys()].slice(0,3).join(" • ");
+ return "ביוטכנולוגיה";
+}
 async function headerBlocks(version) {
-  const h=state.header, out=[];
-  let logoParagraph=para(styledText("לוגו בית הספר",17,SOFT),{center:true,after:0});
-  if(state.logo) {
-    try {
-      const res=await fetch(state.logo), buf=await res.arrayBuffer();
-      const jpg=state.logo.startsWith("data:image/jpeg");
-      const bmp=await createImageBitmap(new Blob([buf],{type:jpg?"image/jpeg":"image/png"}));
-      const k=Math.min(1,145/bmp.width,130/bmp.height);
-      logoParagraph=para(new D.ImageRun({type:jpg?"jpg":"png",data:buf,
-        transformation:{width:Math.max(1,Math.round(bmp.width*k)),height:Math.max(1,Math.round(bmp.height*k))}}),
-        {center:true,after:0});
-    }catch(e){console.warn("Could not place logo",e);}
-  }
-  out.push(designedTable([[
-    cell([para(styledText("בית הספר",19,SOFT),{after:70}),
-      para(styledText(h.school||"שם בית הספר",34,NAVY,true),{after:0})],{pad:170}),
-    cell(logoParagraph,{pad:100})
-  ]],[6300,2700]));
-  out.push(para(styledText(" ",12),{after:65}));
-  out.push(para(styledText(h.exam||"מבחן בביוטכנולוגיה",38,NAVY,true),
-    {center:true,before:120,after:65,keepNext:true}));
-  if(h.topic) out.push(para(styledText("נושא: "+h.topic,23,SOFT),
-    {center:true,after:140}));
-  if(version==="B") out.push(para(styledText("טור ב׳",25,NAVY,true),
-    {center:true,after:90}));
-  out.push(designedTable([
-    [dataCell("שכבת גיל / כיתה",h.cls),dataCell("תאריך",h.date)],
-    [dataCell("שם התלמיד/ה",h.student||"____________________"),
-      dataCell("משך הבחינה",h.duration)]
-  ],[4500,4500]));
-  out.push(para(styledText("סך הכול: 100 נקודות",22,NAVY,true),
-    {before:130,after:90}));
-  if(h.instructions) {
-    out.push(para(styledText("הנחיות:",21,NAVY,true),{after:40}));
-    out.push(...lines(h.instructions,{after:70}));
-  }
-  out.push(para(run(" "),{after:80}));
-  return out;
+ const h=state.header,out=[];
+ if(state.logo){
+  try {
+   const res=await fetch(state.logo),buf=await res.arrayBuffer(),jpg=state.logo.startsWith("data:image/jpeg");
+   const bmp=await createImageBitmap(new Blob([buf],{type:jpg?"image/jpeg":"image/png"}));
+   const k=Math.min(1,116/bmp.width,110/bmp.height);
+   out.push(new D.Paragraph({bidirectional:true,spacing:{after:0},children:[
+    new D.ImageRun({type:jpg?"jpg":"png",data:buf,
+     transformation:{width:Math.max(1,Math.round(bmp.width*k)),height:Math.max(1,Math.round(bmp.height*k))},
+     floating:{horizontalPosition:{relative:D.HorizontalPositionRelativeFrom.PAGE,offset:1050000},
+      verticalPosition:{relative:D.VerticalPositionRelativeFrom.PAGE,offset:950000},
+      behindDocument:true,allowOverlap:true,wrap:{type:D.TextWrappingType.NONE}}})
+   ]}));
+  }catch(e){console.warn("Cannot place logo",e);}
+ }
+ out.push(para(styledText(h.school||"שם בית הספר",36,NAVY,true),{after:90}));
+ out.push(para(styledText(" ",16),{after:120}));
+ out.push(para(styledText(h.exam||"מבחן מסכם",38,NAVY,true),{center:true,after:65,keepNext:true}));
+ out.push(para(styledText("נושא: "+inferredExamTopic(),24,SOFT),{center:true,after:140}));
+ if(version==="B")out.push(para(styledText("טור ב׳",25,NAVY,true),{center:true,after:90}));
+ const duration=h.duration?h.duration+" "+(h.durationUnit||"דקות"):"";
+ out.push(designedTable([
+  [dataCell("שכבת גיל / כיתה",h.cls),dataCell("תאריך",h.date)],
+  [dataCell("שם התלמיד/ה",h.student||"____________________"),dataCell("משך הבחינה",duration)]
+ ],[4500,4500]));
+ out.push(para(styledText("סך הכול: 100 נקודות",22,NAVY,true),{before:130,after:90}));
+ if(h.instructions){out.push(para(styledText("הנחיות:",21,NAVY,true),{after:40}));out.push(...lines(h.instructions,{after:70}));}
+ out.push(para(run(" "),{after:80}));return out;
 }
 
 function sectionedEntries(entries) {
