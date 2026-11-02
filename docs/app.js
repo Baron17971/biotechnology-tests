@@ -766,7 +766,7 @@ headerForm.addEventListener("input", (e) => {
 
 load();
 state.view = viewFromHash();
-for (const el of headerForm.elements) if (el.name) el.value = state.header[el.name] ?? (el.name === "answerLines" ? "4" : "");
+for (const el of headerForm.elements) if (el.name) el.value = state.header[el.name] ?? (el.name === "answerLines" ? "4" : el.name === "exam" ? "מבחן מסכם" : el.name === "durationUnit" ? "דקות" : "");
 
 optSource.checked = state.showSource;
 optOnline.checked = state.hideOnline;
@@ -799,7 +799,7 @@ $("remove-logo").addEventListener("click", () => {
   save();
 });
 $("save-template").addEventListener("click", () => {
-  const reusable = ["school","cls","duration","instructions","layout","answerLines"];
+  const reusable = ["school","cls","duration","durationUnit","exam","instructions","layout","answerLines"];
   const header = Object.fromEntries(reusable.map(k=>[k,state.header[k] ?? ""]));
   try {
     localStorage.setItem(EXAM_TEMPLATE_KEY, JSON.stringify({header,logo:state.logo}));
@@ -812,7 +812,7 @@ if (!Object.values(state.header).some(Boolean)) {
     if (template) {
       Object.assign(state.header, template.header);
       state.logo = template.logo || null;
-      for (const el of headerForm.elements) if (el.name) el.value = state.header[el.name] ?? (el.name === "answerLines" ? "4" : "");
+      for (const el of headerForm.elements) if (el.name) el.value = state.header[el.name] ?? (el.name === "answerLines" ? "4" : el.name === "exam" ? "מבחן מסכם" : el.name === "durationUnit" ? "דקות" : "");
       updateLogoStatus(); save();
     }
   } catch (err) { /* optional template */ }
