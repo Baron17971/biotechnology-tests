@@ -14,7 +14,8 @@ const state = {
   cart: [], // [{id, items: [labels] | null, points: number | null}]
   showSource: true,
   hideOnline: false,
-  header: {}, // שדות כותרת המבחן לייצוא: school, exam, cls, date, duration, instructions
+  header: {}, // פרטי הבחינה והגדרות העיצוב
+  logo: null, // data URI of locally uploaded logo
   msg: {}, // הודעה זמנית לכל שאלה בסל
   query: "", // חיפוש חופשי
   type: "", // סינון לפי סוג שאלה: "" | open | mc | tf
@@ -57,6 +58,7 @@ function load() {
       state.showSource = saved.showSource ?? true;
       state.hideOnline = saved.hideOnline ?? false;
       state.header = saved.header || {};
+      state.logo = saved.logo || null;
     }
   } catch (e) { /* אחסון חסום – ממשיכים בלי */ }
 }
@@ -64,7 +66,7 @@ function load() {
 function save() {
   try {
     localStorage.setItem(STORE_KEY, JSON.stringify({
-      cart: state.cart, showSource: state.showSource, hideOnline: state.hideOnline, header: state.header,
+      cart: state.cart, showSource: state.showSource, hideOnline: state.hideOnline, header: state.header, logo: state.logo,
     }));
   } catch (e) { /* אחסון חסום – ממשיכים בלי */ }
 }
@@ -477,6 +479,7 @@ function renderCart() {
       </div>
       <div class="cart-q-row">
         ${items}
+        ${q.type === "open" ? `<label class="cart-pts">שורות לתשובה <input type="number" min="0" max="20" step="1" data-lines="${q.id}" value="${entry.lines ?? ""}" placeholder="ברירת מחדל"></label>` : ""}
         <label class="cart-pts">ניקוד <input type="number" min="0" step="0.5" data-points="${q.id}"
           value="${pts ?? ""}" placeholder="—"></label>
       </div>
@@ -486,8 +489,11 @@ function renderCart() {
   const { total, missing } = cartTotals();
   $("cart-total").innerHTML = n
     ? `<b>${n}</b> שאלות · <b>${total}</b> נק'${missing ? ` <span class="warn">(יש שאלות בלי ניקוד)</span>` : ""}` : "";
-  $("export-a").disabled = !n;
-  $("export-b").disabled = !n;
+  const valid = n > 0 && !missing && Math.abs(total-100)<0.001 && state.cart.every(e => Number.isFinite(effectivePoints(e)) && effectivePoints(e)>=0);
+  $("export-a").disabled = !valid;
+  $("export-b").disabled = !valid;
+  $("export-a").title = $("export-b").title = valid ? "" : "הייצוא זמין כאשר הניקוד הכולל הוא בדיוק 100";
+  $("exam-score-panel").innerHTML = n ? '<strong>ניקוד הבחינה: '+total+' / 100</strong><div class="score-track"><span style="width:'+Math.min(100,Math.max(0,total))+'%"></span></div><small>'+ (missing?'יש להשלים ניקוד לשאלות ללא ניקוד':total===100?'מצוין! המבחן מוכן לייצוא':total<100?'נותרו '+(100-total)+' נקודות לחלוקה':'יש להפחית '+(total-100)+' נקודות')+'</small>' : '<small>הוסיפו שאלות כדי להתחיל לבנות מבחן בן 100 נקודות.</small>';
   $("cart-clear").hidden = !n;
   $("cartbar").hidden = !n;
   $("cartbar-text").innerHTML = `<b>${n}</b> ${n === 1 ? "שאלה" : "שאלות"} במבחן · <b>${total}</b> נק'`;
@@ -648,6 +654,9 @@ cartEl.addEventListener("change", (e) => {
   const t = e.target;
   if (t.dataset.item) {
     toggleItem(state.cart.find((c) => c.id === t.dataset.item), t.value, t.checked);
+  } else if (t.dataset.lines) {
+    const entry = state.cart.find((c) => c.id === t.dataset.lines);
+    entry.lines = t.value === "" ? null : Math.max(0, Math.min(20, Math.floor(Number(t.value)||0)));
   } else if (t.dataset.points) {
     const entry = state.cart.find((c) => c.id === t.dataset.points);
     entry.points = t.value === "" ? null : Number(t.value);
@@ -757,8 +766,71 @@ headerForm.addEventListener("input", (e) => {
 
 load();
 state.view = viewFromHash();
-for (const el of headerForm.elements) el.value = state.header[el.name] || "";
-if (Object.values(state.header).some(Boolean)) $("exam-details").open = true;
+for (const el of headerForm.elements) if (el.name) el.value = state.header[el.name] ?? (el.name === "answerLines" ? "4" : "");
+
 optSource.checked = state.showSource;
 optOnline.checked = state.hideOnline;
 renderAll();
+
+/* ---------- תבנית מורה שמורה (בדפדפן זה) ---------- */
+const EXAM_TEMPLATE_KEY = "bagrut-teacher-template-v1";
+function updateLogoStatus() {
+  $("logo-status").textContent = state.logo ? "לוגו נבחר ונשמר בדפדפן" : "לא נבחר לוגו";
+}
+updateLogoStatus();
+$("exam-logo").addEventListener("change", (ev) => {
+  const file = ev.target.files?.[0];
+  if (!file) return;
+  if (!["image/png", "image/jpeg"].includes(file.type) || file.size > 1024*1024) {
+    $("logo-status").textContent = "יש לבחור PNG או JPG עד 1MB"; ev.target.value = ""; return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    state.logo = reader.result;
+    save();
+    updateLogoStatus();
+  };
+  reader.readAsDataURL(file);
+});
+$("remove-logo").addEventListener("click", () => {
+  state.logo = null;
+  $("exam-logo").value = "";
+  updateLogoStatus();
+  save();
+});
+$("save-template").addEventListener("click", () => {
+  const reusable = ["school","cls","duration","instructions","layout","answerLines"];
+  const header = Object.fromEntries(reusable.map(k=>[k,state.header[k] ?? ""]));
+  try {
+    localStorage.setItem(EXAM_TEMPLATE_KEY, JSON.stringify({header,logo:state.logo}));
+    $("template-status").textContent = "התבנית נשמרה בדפדפן הזה.";
+  } catch (err) { $("template-status").textContent = "לא ניתן לשמור. ייתכן שהלוגו גדול מדי."; }
+});
+if (!Object.values(state.header).some(Boolean)) {
+  try {
+    const template = JSON.parse(localStorage.getItem(EXAM_TEMPLATE_KEY) || "null");
+    if (template) {
+      Object.assign(state.header, template.header);
+      state.logo = template.logo || null;
+      for (const el of headerForm.elements) if (el.name) el.value = state.header[el.name] ?? (el.name === "answerLines" ? "4" : "");
+      updateLogoStatus(); save();
+    }
+  } catch (err) { /* optional template */ }
+}
+
+/* ---------- חלון הגדרות בולט ונגיש ---------- */
+const settingsDialog=$("exam-settings-modal");
+function showExamSettings() {
+  if (cartEl.classList.contains("open")) closeCart();
+  settingsDialog.showModal();
+  $("header-form").querySelector('[name="school"]').focus();
+}
+$("open-exam-settings").addEventListener("click",showExamSettings);
+$("cart-exam-settings").addEventListener("click",showExamSettings);
+$("close-exam-settings").addEventListener("click",()=>settingsDialog.close());
+$("apply-exam-settings").addEventListener("click",()=>settingsDialog.close());
+settingsDialog.addEventListener("click", e => { if(e.target === settingsDialog) settingsDialog.close(); });
+if (!state.header.school && !sessionStorage.getItem("exam-setup-seen")) {
+  sessionStorage.setItem("exam-setup-seen","1");
+  setTimeout(showExamSettings,250);
+}

@@ -35,6 +35,7 @@ function para(children, o = {}) {
     spacing: { before: o.before ?? 0, after: o.after ?? 80, line: LINE_15 },
     keepNext: o.keepNext,
     border: o.border,
+    shading: o.shading,
   });
 }
 
@@ -149,6 +150,15 @@ async function questionBlocks(entry, n, perms) {
       out.push(...bank(p.interactive));
     }
   }
+  if (q.type === "open") {
+    const count = entry.lines == null ? Math.max(0,Math.min(20,Number(state.header.answerLines ?? 4))) : entry.lines;
+    if (count > 0) {
+      out.push(para(run("תשובה:",{bold:true}),{before:160,after:80}));
+      for (let i=0;i<count;i++) out.push(para(run(" "),{
+        after:140, border:{bottom:{style:D.BorderStyle.SINGLE,color:"B8C6D3",size:4,space:1}}
+      }));
+    }
+  }
   if (isOnline(q)) {
     out.push(para(run("שאלה זו דורשת עבודה בכלים מקוונים (Entrez / BLAST) – יש לפתור אותה מול מחשב.",
       { italics: true }), { border: { top: box, bottom: box, left: box, right: box }, before: 120 }));
@@ -158,28 +168,60 @@ async function questionBlocks(entry, n, perms) {
 
 /* ---------- מסמך ---------- */
 
-function headerBlocks(version) {
+async function headerBlocks(version) {
   const h = state.header;
   const out = [];
-  if (h.school) out.push(para(run(h.school, { bold: true }), { center: true }));
-  if (h.exam) out.push(para(run(h.exam, { bold: true }), { center: true }));
-  if (version === "B") out.push(para(run("טור ב׳", { bold: true }), { center: true }));
-  const info = [["כיתה", h.cls], ["תאריך", h.date], ["משך", h.duration]]
-    .filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join("        ");
-  if (info) out.push(para(run(info), { center: true }));
+  if (state.logo) {
+    try {
+      const res = await fetch(state.logo);
+      const buf = await res.arrayBuffer();
+      const isJpeg = state.logo.startsWith("data:image/jpeg");
+      const bmp = await createImageBitmap(new Blob([buf], {type:isJpeg?"image/jpeg":"image/png"}));
+      const scale = Math.min(1, 110/bmp.width, 80/bmp.height);
+      out.push(para(new D.ImageRun({type:isJpeg?"jpg":"png",data:buf,
+        transformation:{width:Math.max(1,Math.round(bmp.width*scale)),height:Math.max(1,Math.round(bmp.height*scale))}}),
+        {center:true,after:100}));
+    } catch(e) { console.warn("Logo skipped",e); }
+  }
+  if (h.school) out.push(para(run(h.school,{bold:true}),{center:true,after:100}));
+  out.push(para(new D.TextRun({text:h.exam||"מבחן",font:"Arial",size:36,bold:true,color:"173553",rightToLeft:true}),{center:true,before:140,after:110,keepNext:true}));
+  if (h.topic) out.push(para(new D.TextRun({text:"נושא הבחינה: "+h.topic,font:"Arial",size:27,color:"385E78",rightToLeft:true}),{center:true,after:180}));
+  if (version==="B") out.push(para(run("טור ב׳",{bold:true}),{center:true}));
+  const info=[["שכבה/כיתה",h.cls],["תאריך",h.date],["משך הבחינה",h.duration]]
+    .filter(([,v])=>v).map(([k,v])=>k+": "+v).join("     ");
+  if(info) out.push(para(run(info),{center:true,after:110}));
+  out.push(para(run("שם התלמיד/ה: "+(h.student || "________________________"),{bold:true}),{after:150}));
+  out.push(para(run("סך הנקודות: 100",{bold:true}),{after:90}));
   if (h.instructions) {
-    out.push(para(run("הוראות:", { bold: true }), { before: 160, after: 40 }));
+    out.push(para(run("הוראות:",{bold:true}),{before:100,after:40}));
     out.push(...lines(h.instructions));
   }
-  if (out.length) {
-    out.push(para(run(""), { border: { bottom: { style: D.BorderStyle.SINGLE, color: "999999", space: 1 } } }));
-  }
+  out.push(para(run(" "),{border:{bottom:{style:D.BorderStyle.SINGLE,color:"284D6D",size:7,space:2}},after:150}));
   return out;
+}
+function sectionedEntries(entries) {
+  if (state.header.layout !== "sections") return [{label:"",entries}];
+  const types=[["mc","חלק א׳ — שאלות רבות ברירה"],["tf","חלק ב׳ — נכון / לא נכון"],["open","חלק ג׳ — שאלות פתוחות"]];
+  const available=types.map(([type,label])=>({label,entries:entries.filter(e=>QS.get(e.id).type===type)})).filter(x=>x.entries.length);
+  return available.map((x,i)=>({...x,label:"חלק "+("אבגדה"[i])+"׳ — "+x.label.split(" — ")[1]}));
+}
+function orderEntries(entries) {
+  return sectionedEntries(entries).flatMap(s=>s.entries);
 }
 
 async function buildDoc(version, entries, perms) {
-  const children = headerBlocks(version);
-  for (const [i, entry] of entries.entries()) children.push(...await questionBlocks(entry, i + 1, perms));
+  const children = await headerBlocks(version);
+  let number=1;
+  for (const section of sectionedEntries(entries)) {
+    if(section.label) {
+      const points=section.entries.reduce((n,e)=>n+(effectivePoints(e)||0),0);
+      children.push(para(new D.TextRun({text:section.label+" ("+points+" נקודות)",font:"Arial",size:27,bold:true,color:"FFFFFF",rightToLeft:true}),{
+        before:280,after:180,keepNext:true,
+        shading:{type:D.ShadingType.CLEAR,color:"auto",fill:"173553"}
+      }));
+    }
+    for(const entry of section.entries) children.push(...await questionBlocks(entry,number++,perms));
+  }
   return new D.Document({
     styles: { default: { document: { run: { font: "Arial" } } } },
     sections: [{
@@ -226,7 +268,7 @@ function optionPerms(entries) {
 
 /** טבלת המרה למורה (מוצגת בסל, לא נכנסת לקובץ): מיקום כל שאלה וכל אפשרות בטור ב׳ */
 function renderConversion(entriesB, perms) {
-  const rows = state.cart.map((entry, i) => {
+  const rows = orderEntries(state.cart).map((entry, i) => {
     const q = QS.get(entry.id);
     const style = BANK.exams[q.exam].option_style || "hebrew";
     const opts = Object.entries(perms).filter(([k]) => k.startsWith(`${q.id}|`)).map(([k, perm]) => {
@@ -250,10 +292,18 @@ function fileName(version) {
 
 /** בונה את הקובץ ומחזיר Blob (גם לבדיקות) */
 async function examBlob(version) {
-  let entries = state.cart;
+  const points = state.cart.map(effectivePoints);
+  if(!state.cart.length || points.some(p=>!Number.isFinite(p)||p<0) || Math.abs(points.reduce((a,b)=>a+b,0)-100)>0.001) {
+    throw Error("יש להשלים ניקוד מדויק של 100 נקודות לפני הייצוא.");
+  }
+  let entries = orderEntries(state.cart);
   let perms = {};
   if (version === "B") {
-    entries = shuffleDifferent(state.cart);
+    if(state.header.layout==="sections") {
+      entries=sectionedEntries(state.cart).flatMap(sec=>shuffleDifferent(sec.entries));
+    } else {
+      entries=shuffleDifferent(state.cart);
+    }
     perms = optionPerms(entries);
     renderConversion(entries, perms);
   }
