@@ -799,7 +799,7 @@ $("remove-logo").addEventListener("click", () => {
   save();
 });
 $("save-template").addEventListener("click", () => {
-  const reusable = ["school","cls","duration","durationUnit","exam","instructions","layout","answerLines"];
+  const reusable = ["school","cls","duration","durationUnit","exam","font","instructions","layout","answerLines"];
   const header = Object.fromEntries(reusable.map(k=>[k,state.header[k] ?? ""]));
   try {
     localStorage.setItem(EXAM_TEMPLATE_KEY, JSON.stringify({header,logo:state.logo}));
