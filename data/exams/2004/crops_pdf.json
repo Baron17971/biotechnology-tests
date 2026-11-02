@@ -1,0 +1,9 @@
+{"remove":["p12_f1.png","p13_f1.png","p13_f2.png","p19_f2.png"],
+ "crops":[
+ {"page":4,"out":"p04_f1.png","top":303,"bottom":410},
+ {"page":8,"out":"p08_f1.png","top":125,"bottom":300},
+ {"page":17,"out":"p17_f1.png","top":298,"bottom":447},
+ {"page":19,"out":"p19_f1.png","top":64,"bottom":621},
+ {"page":21,"out":"p21_f1.png","top":84,"bottom":534},
+ {"page":25,"out":"p25_f1.png","top":120,"bottom":218}
+]}

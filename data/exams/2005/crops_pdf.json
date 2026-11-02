@@ -1,0 +1,11 @@
+{"remove":["p10_f2.png","p13_f1.png","p14_f1.png","p20_f2.png","p23_f2.png","p24_f2.png"],
+ "crops":[
+ {"page":10,"out":"p10_f1.png","top":74,"bottom":170,"x":[28,280]},
+ {"page":18,"out":"p18_f1.png","top":332,"bottom":523},
+ {"page":19,"out":"p19_f1.png","top":271,"bottom":458},
+ {"page":20,"out":"p20_f1.png","top":188,"bottom":357,"x":[30,294]},
+ {"page":21,"out":"p21_f1.png","top":333,"bottom":558,"x":[100,380]},
+ {"page":23,"out":"p23_f1.png","top":226,"bottom":498},
+ {"page":24,"out":"p24_f1.png","top":104,"bottom":357},
+ {"page":27,"out":"p27_f1.png","top":62,"bottom":220}
+]}

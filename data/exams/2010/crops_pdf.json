@@ -1,0 +1,5 @@
+{"crops": [
+  {"page": 10, "out": "p10_f1.png", "top": 456, "bottom": 630, "x": [29, 436]},
+  {"page": 12, "out": "p12_f2.png", "top": 531, "bottom": 622, "x": [29, 436]},
+  {"page": 22, "out": "p22_f1.png", "top": 180, "bottom": 404, "x": [66, 422]}
+]}

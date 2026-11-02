@@ -1,0 +1,6 @@
+raw/
+.venv/
+__pycache__/
+.DS_Store
+data/exams/*/pages/
+data/exams/*/text.txt

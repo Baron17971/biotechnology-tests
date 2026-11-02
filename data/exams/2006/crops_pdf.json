@@ -1,0 +1,5 @@
+{"remove":["p08_f1.png"],
+ "crops":[
+ {"page":13,"out":"p13_f1.png","top":276,"bottom":588},
+ {"page":15,"out":"p15_f1.png","top":270,"bottom":500}
+]}

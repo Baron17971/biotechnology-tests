@@ -1,0 +1,21 @@
+{
+  "frame": [666, 1000],
+  "crops": [
+    {"src": "pages/q1_b.jpg", "out": "q1_fig_a.png", "box": [150, 355, 625, 592], "frame": [800, 1200]},
+    {"src": "pages/q1_b.jpg", "out": "q1_table.png", "box": [260, 680, 512, 820], "frame": [800, 1200]},
+    {"src": "pages/q1_c.jpg", "out": "q1_fig_b.png", "box": [55, 315, 725, 660], "frame": [800, 1200]},
+    {"src": "pages/q2_c.jpg", "out": "q2_fig.png", "box": [160, 182, 485, 335]},
+    {"src": "pages/q3_b.jpg", "out": "q3_fig_a.png", "box": [125, 185, 522, 370]},
+    {"src": "pages/q3_b.jpg", "out": "q3_photo.png", "box": [215, 652, 405, 915]},
+    {"src": "pages/q4_c.jpg", "out": "q4_photo.png", "box": [228, 238, 432, 447]},
+    {"src": "pages/q4_c.jpg", "out": "q4_graph.png", "box": [150, 495, 515, 740]},
+    {"src": "pages/q5_a.jpg", "out": "q5_fig_a.png", "box": [225, 280, 412, 530]},
+    {"src": "pages/q5_b.jpg", "out": "q5_fig_b.png", "box": [75, 330, 570, 575]},
+    {"src": "pages/q6_a.jpg", "out": "q6_fig.png", "box": [185, 555, 460, 870]},
+    {"src": "pages/q7_a.jpg", "out": "q7_seq_app.png", "box": [70, 480, 490, 712]},
+    {"src": "pages/q7_b.jpg", "out": "q7_fig_a.png", "box": [75, 140, 590, 425]},
+    {"src": "pages/q7_b.jpg", "out": "q7_fig_b.png", "box": [75, 440, 590, 755]},
+    {"src": "pages/q8_a.jpg", "out": "q8_seq.png", "box": [70, 245, 492, 700]},
+    {"src": "pages/q8_b.jpg", "out": "q8_fig.png", "box": [95, 160, 570, 445]}
+  ]
+}
