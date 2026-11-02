@@ -20,18 +20,19 @@ const optLabel = (style, i) => (style === "upper-roman" ? ROMAN[i] : HEB_LETTERS
 const HEBREW = /[֐-׿]/;
 const LRM = "‎";
 const RLM = "‏";
+const selectedFont = () => ["Arial","Tahoma","David","Varela Round"].includes(state.header.font) ? state.header.font : "Arial";
 
 /** קטע בלי עברית (רצף DNA, מספר רומי) נעטף בסימני LRM כדי שהגרשים והנקודות לא יקפצו לצד הלא נכון */
 function run(text, o = {}) {
   const hebrew = HEBREW.test(text);
   const t = !hebrew && /[A-Za-z0-9]/.test(text) ? `${LRM}${text}${LRM}` : text;
-  return new D.TextRun({ size: FONT_SIZE, font: "Arial", text: t, rightToLeft: hebrew, bold: o.bold, italics: o.italics, color: o.color });
+  return new D.TextRun({ size: FONT_SIZE, font: selectedFont(), text: t, rightToLeft: hebrew, bold: o.bold, italics: o.italics, color: o.color });
 }
 
 function para(children, o = {}) {
   return new D.Paragraph({
     bidirectional: true,
-    children: [new D.TextRun({ size: FONT_SIZE, font: "Arial", text: RLM, rightToLeft: true }), ...[].concat(children).filter(Boolean)],
+    children: [new D.TextRun({ size: FONT_SIZE, font: selectedFont(), text: RLM, rightToLeft: true }), ...[].concat(children).filter(Boolean)],
     alignment: o.center ? D.AlignmentType.CENTER : undefined,
     spacing: { before: o.before ?? 0, after: o.after ?? 80, line: LINE_15 },
     keepNext: o.keepNext,
@@ -82,7 +83,7 @@ function table(t) {
 /** אפשרויות לשאלה אמריקאית; perm = סדר ההצגה (בטור ב׳ – מעורבב) */
 function optionParas(opts, style, perm) {
   // RLM אחרי התווית מפריד בין "I." לבין מילה לועזית שאחריה, כך שהתווית נשארת בצד ימין
-  const sep = () => new D.TextRun({ size: FONT_SIZE, font: "Arial", text: `${RLM}  `, rightToLeft: true });
+  const sep = () => new D.TextRun({ size: FONT_SIZE, font: selectedFont(), text: `${RLM}  `, rightToLeft: true });
   return perm.flatMap((src, i) => opts[src].split("\n").map((line, j) =>
     para([j === 0 ? run(`${optLabel(style, i)}.`) : run("      "), sep(), run(line)], { after: 40 })));
 }
@@ -92,7 +93,7 @@ function bank(inter) {
   if (!inter) return [];
   if (inter.kind === "true_false") return [para(run("לכל היגד כתבו: נכון / לא נכון", { bold: true }))];
   if (!inter.options) return [];
-  const bullet = (o) => para([run("•"), new D.TextRun({ size: FONT_SIZE, font: "Arial", text: `${RLM}  `, rightToLeft: true }), run(o)], { after: 0 });
+  const bullet = (o) => para([run("•"), new D.TextRun({ size: FONT_SIZE, font: selectedFont(), text: `${RLM}  `, rightToLeft: true }), run(o)], { after: 0 });
   const cell = new D.TableCell({
     children: [para(run("מחסן היגדים – בחרו מתוך:", { bold: true }), { after: 40 }), ...inter.options.map(bullet)],
     margins: { top: 80, bottom: 80, left: 160, right: 160 },
@@ -130,7 +131,7 @@ function designedTable(rows,widths) {
       children:row}))});
 }
 function styledText(text,size=24,color=NAVY,bold=false) {
-  return new D.TextRun({text:String(text),font:"Arial",size,color,bold,rightToLeft:true});
+  return new D.TextRun({text:String(text),font:selectedFont(),size,color,bold,rightToLeft:true});
 }
 function dataCell(label,value) {
   return cell([para(styledText(label,18,SOFT),{after:45}),
@@ -275,12 +276,12 @@ async function buildDoc(version, entries, perms) {
     }
   }
   return new D.Document({
-    styles: { default: { document: { run: { font: "Arial" } } } },
+    styles: { default: { document: { run: { font: selectedFont() } } } },
     sections: [{
       properties: { page: { size: { width: 11906, height: 16838 },
         margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } } },
       footers: { default: new D.Footer({ children: [new D.Paragraph({
-        alignment: D.AlignmentType.CENTER, children: [new D.TextRun({ size: FONT_SIZE, font: "Arial", children: [D.PageNumber.CURRENT] })] })] }) },
+        alignment: D.AlignmentType.CENTER, children: [new D.TextRun({ size: FONT_SIZE, font: selectedFont(), children: [D.PageNumber.CURRENT] })] })] }) },
       children,
     }],
   });
