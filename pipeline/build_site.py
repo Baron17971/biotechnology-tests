@@ -1,4 +1,4 @@
-"""אריזת המאגר לאתר: site/data.js + העתקת האיורים ל-site/figures/<בחינה>/.
+"""אריזת המאגר לאתר: docs/data.js + העתקת האיורים ל-docs/figures/<בחינה>/.
 
 שימוש:
     .venv/bin/python -I pipeline/build_site.py            (כל הבחינות ב-data/exams)
@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from catalog import ROOT, TOPICS, exam_dirs, main_subtopic, parts, validate  # noqa: E402
 
-SITE = ROOT / "site"
+SITE = ROOT / "docs"
 
 
 def figures_of(q):
@@ -48,7 +48,7 @@ def main(dirs):
     bank = {"units": TOPICS["units"], "tags": TOPICS["tags"], "exams": exams, "questions": questions}
     (SITE / "data.js").write_text(
         "window.BANK = " + json.dumps(bank, ensure_ascii=False) + ";\n", encoding="utf-8")
-    print(f"-> site/data.js: {len(questions)} שאלות מ-{len(exams)} בחינות")
+    print(f"-> docs/data.js: {len(questions)} שאלות מ-{len(exams)} בחינות")
 
 
 if __name__ == "__main__":
