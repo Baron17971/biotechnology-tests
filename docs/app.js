@@ -806,7 +806,7 @@ $("save-template").addEventListener("click", () => {
     $("template-status").textContent = "התבנית נשמרה בדפדפן הזה.";
   } catch (err) { $("template-status").textContent = "לא ניתן לשמור. ייתכן שהלוגו גדול מדי."; }
 });
-if (!localStorage.getItem(STORE_KEY)) {
+if (!Object.values(state.header).some(Boolean)) {
   try {
     const template = JSON.parse(localStorage.getItem(EXAM_TEMPLATE_KEY) || "null");
     if (template) {
