@@ -124,14 +124,13 @@
       <div class="exam-modal-head"><div><h2 id="exam-settings-heading">עיצוב והגדרות הבחינה</h2><p>הגדירי את הפרטים פעם אחת. אפשר לחזור ולערוך בכל שלב.</p></div><button type="button" class="icon-btn" id="close-exam-settings" aria-label="סגירה">✕</button></div>
       <form id="header-form" class="header-form" autocomplete="off">
         <label>שם בית הספר <input name="school"></label>
-        <label>שם המבחן <input name="exam"></label>
-        <label>נושא הבחינה <input name="topic" placeholder="לדוגמה: הנדסה גנטית ו-PCR"></label>
+        <label>סוג הבחינה <select name="exam"><option value="מבחן מסכם">מבחן מסכם</option><option value="מבחן">מבחן</option><option value="בוחן">בוחן</option><option value="מתכונת">מתכונת</option><option value="דף תרגול">דף תרגול</option></select></label><p class="mute small">הנושא נגזר אוטומטית מהשאלות שנבחרו.</p>
         <label>שם התלמיד/ה <input name="student" placeholder="יישאר קו לכתיבה אם ריק"></label>
         <div class="two">
           <label>כיתה <input name="cls"></label>
           <label>תאריך <input name="date"></label>
         </div>
-        <label>משך <input name="duration" placeholder="למשל: שעתיים"></label>
+        <div class="two"><label>משך הבחינה <input name="duration" type="number" min="1" step="1" placeholder="90"></label><label>יחידות זמן <select name="durationUnit"><option value="דקות">דקות</option><option value="שעות">שעות</option></select></label></div>
         <label>לוגו בית הספר (PNG/JPG) <input id="exam-logo" type="file" accept="image/png,image/jpeg"></label>
         <button type="button" class="link-btn" id="remove-logo">הסרת הלוגו</button>
         <small id="logo-status" class="mute">לא נבחר לוגו</small>
@@ -150,7 +149,7 @@
 
 <script src="vendor/docx-9.5.1.umd.js"></script>
 <script src="data.js?v=9"></script>
-<script src="app.js?v=10"></script>
-<script src="export.js?v=13"></script>
+<script src="app.js?v=11"></script>
+<script src="export.js?v=14"></script>
 </body>
 </html>
