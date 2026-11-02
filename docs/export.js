@@ -209,16 +209,16 @@ async function questionBlocks(entry, n, perms) {
 /* ---------- מסמך ---------- */
 
 function inferredExamTopic() {
- const subs=new Map(), units=new Map();
+ // נושאי הבחינה נקבעים קודם כול לפי תתי-הנושאים של השאלות שנבחרו.
+ const names=new Set(), units=new Set();
  for(const entry of state.cart) {
   const q=QS.get(entry.id); if(!q)continue;
-  const sub=SUBS.get(q.main),unit=UNITS.get(q.unit);
-  if(sub)subs.set(sub.name,(subs.get(sub.name)||0)+1);
-  if(unit)units.set(unit.name,(units.get(unit.name)||0)+1);
+  const sub=SUBS.get(q.main), unit=UNITS.get(q.unit);
+  if(sub) names.add(sub.name);
+  if(unit) units.add(unit.name);
  }
- if(subs.size===1)return [...subs.keys()][0].split(" – ")[0];
- if(units.size===1)return [...units.keys()][0];
- if(units.size>1)return [...units.keys()].slice(0,3).join(" • ");
+ if(names.size) return [...names].join(" • ");
+ if(units.size) return [...units].join(" • ");
  return "ביוטכנולוגיה";
 }
 async function headerBlocks(version) {
