@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Rubik:wght@500;600;700&display=swap">
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 <script>
   // ערכת צבעים שנבחרה ידנית – לפני הציור, כדי שלא יהבהב
   try { const t = localStorage.getItem("bagrut-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -105,15 +105,24 @@
       <form id="header-form" class="header-form" autocomplete="off">
         <label>שם בית הספר <input name="school"></label>
         <label>שם המבחן <input name="exam"></label>
+        <label>נושא הבחינה <input name="topic" placeholder="לדוגמה: הנדסה גנטית ו-PCR"></label>
+        <label>שם התלמיד/ה <input name="student" placeholder="יישאר קו לכתיבה אם ריק"></label>
         <div class="two">
           <label>כיתה <input name="cls"></label>
           <label>תאריך <input name="date"></label>
         </div>
         <label>משך <input name="duration" placeholder="למשל: שעתיים"></label>
+        <label>לוגו בית הספר (PNG/JPG) <input id="exam-logo" type="file" accept="image/png,image/jpeg"></label>
+        <button type="button" class="link-btn" id="remove-logo">הסרת הלוגו</button>
+        <small id="logo-status" class="mute">לא נבחר לוגו</small>
+        <label>סידור השאלות <select name="layout"><option value="order">לפי הסדר שבחרתי</option><option value="sections">חלוקה לחלקים לפי סוג השאלה</option></select></label>
+        <label>שורות תשובה כברירת מחדל לשאלות פתוחות <input name="answerLines" type="number" min="0" max="20" value="4"></label>
         <label>הוראות <textarea name="instructions" rows="3"></textarea></label>
         <p class="mute small">שדה ריק לא יודפס.</p>
       </form>
     </details>
+    <div class="exam-score-panel" id="exam-score-panel" role="status"></div>
+    <div class="exam-template-actions"><button type="button" class="btn" id="save-template">שמירת תבנית למבחנים הבאים</button><span id="template-status" class="mute small"></span></div>
     <div id="convert" class="convert"></div>
   </div>
   <div class="cart-foot">
@@ -137,7 +146,7 @@
 
 <script src="vendor/docx-9.5.1.umd.js"></script>
 <script src="data.js?v=9"></script>
-<script src="app.js?v=9"></script>
-<script src="export.js?v=9"></script>
+<script src="app.js?v=10"></script>
+<script src="export.js?v=10"></script>
 </body>
 </html>
