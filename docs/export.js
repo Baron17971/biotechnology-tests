@@ -141,12 +141,13 @@ function sectionBanner(title,points) {
     {center:true,after:0}),{fill:NAVY,border:NAVY,pad:170})]],[9000]);
 }
 function questionTitle(n,pts) {
-  // כותרת שקטה, ללא רקע תכלת או מסגרת בולטת
-  return designedTable([[
-    cell(para(styledText("שאלה "+n,25,NAVY,true),{after:0}),{border:"FFFFFF",pad:35}),
-    cell(para(styledText((pts ?? "—")+" נקודות",21,SOFT),{center:true,after:0}),{border:"FFFFFF",pad:35})
-  ]],[7200,1800]);
+  // פסקת Word רגילה, ללא טבלה וללא רקע או מסגרת.
+  return para([
+    styledText("שאלה "+n,24,"111111",true),
+    styledText(" ("+(pts ?? "—")+" נקודות)",24,"111111",true)
+  ],{before:135,after:80,keepNext:true});
 }
+
 function answerRule() {
   return new D.Paragraph({bidirectional:true,children:[styledText(" ",22)],
     spacing:{before:0,after:80,line:350},
