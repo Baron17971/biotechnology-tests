@@ -767,7 +767,7 @@ headerForm.addEventListener("input", (e) => {
 load();
 state.view = viewFromHash();
 for (const el of headerForm.elements) if (el.name) el.value = state.header[el.name] ?? (el.name === "answerLines" ? "4" : "");
-if (Object.values(state.header).some(Boolean)) $("exam-details").open = true;
+
 optSource.checked = state.showSource;
 optOnline.checked = state.hideOnline;
 renderAll();
@@ -816,4 +816,21 @@ if (!Object.values(state.header).some(Boolean)) {
       updateLogoStatus(); save();
     }
   } catch (err) { /* optional template */ }
+}
+
+/* ---------- חלון הגדרות בולט ונגיש ---------- */
+const settingsDialog=$("exam-settings-modal");
+function showExamSettings() {
+  if (cartEl.classList.contains("open")) closeCart();
+  settingsDialog.showModal();
+  $("header-form").querySelector('[name="school"]').focus();
+}
+$("open-exam-settings").addEventListener("click",showExamSettings);
+$("cart-exam-settings").addEventListener("click",showExamSettings);
+$("close-exam-settings").addEventListener("click",()=>settingsDialog.close());
+$("apply-exam-settings").addEventListener("click",()=>settingsDialog.close());
+settingsDialog.addEventListener("click", e => { if(e.target === settingsDialog) settingsDialog.close(); });
+if (!state.header.school && !sessionStorage.getItem("exam-setup-seen")) {
+  sessionStorage.setItem("exam-setup-seen","1");
+  setTimeout(showExamSettings,250);
 }
