@@ -6,8 +6,8 @@
 const D = window.docx;
 const HEB_LETTERS = "אבגדהוזחטי";
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
-const FIG_MAX_W = 430; // פיקסלים של docx (1/96 אינץ')
-const FIG_MAX_H = 360;
+const FIG_MAX_W = 516; // פיקסלים של docx (1/96 אינץ')
+const FIG_MAX_H = 432;
 const GRAY = "666666";
 const FONT_SIZE = 24; // חצאי נקודה: 12pt
 const LINE_15 = 360;
@@ -50,7 +50,7 @@ function lines(text, o = {}, prefix = null) {
 async function figure(q, f) {
   const buf = await (await fetch(`figures/${q.exam}/${f}`)).arrayBuffer();
   const bmp = await createImageBitmap(new Blob([buf]));
-  const k = Math.min(1, FIG_MAX_W / bmp.width, FIG_MAX_H / bmp.height);
+  const k = Math.min(1.2, FIG_MAX_W / bmp.width, FIG_MAX_H / bmp.height);
   return para(new D.ImageRun({
     type: "png", data: buf,
     transformation: { width: Math.round(bmp.width * k), height: Math.round(bmp.height * k) },
