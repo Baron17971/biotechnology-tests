@@ -452,8 +452,8 @@ body.dash .hero {
   border:1px solid #c5e1ef;
   box-shadow:0 12px 36px rgba(27,85,131,.10);
 }
-body.dash .hero h1 {color:#103a64;max-width:720px;font-size:clamp(27px,3.1vw,42px);line-height:1.23;text-shadow:0 1px 12px rgba(255,255,255,.6);}
-body.dash .hero p {color:#244f71;max-width:590px;font-size:clamp(15px,1.45vw,19px);line-height:1.65;font-weight:600;}
+body.dash .hero h1 {color:#103a64;max-width:52%;font-size:clamp(27px,3.1vw,42px);line-height:1.23;text-shadow:0 1px 12px rgba(255,255,255,.6);}
+body.dash .hero p {color:#244f71;max-width:min(42%,440px);font-size:clamp(15px,1.45vw,19px);line-height:1.65;font-weight:600;}
 body.dash .hero .stats {justify-content:flex-start;gap:14px;margin-top:24px;}
 body.dash .hero .stat {background:rgba(255,255,255,.75);padding:9px 17px;border:1px solid rgba(151,198,227,.75);border-radius:12px;backdrop-filter:blur(5px);}
 body.dash .hero .stat b {color:#115c9a;}
@@ -461,7 +461,7 @@ body.dash .hero .stat span {color:#335d79;}
 body.dash .hero .helix {display:none;}
 @media(max-width:760px) {
  body.dash .hero {min-height:365px;padding:24px 20px;background-position:42% center;background-image:linear-gradient(270deg,rgba(240,248,255,.94) 0%,rgba(240,248,255,.77) 70%,rgba(240,248,255,.42) 100%),url("biotechnology-hero.jpg");}
- body.dash .hero p {max-width:100%;}
+ body.dash .hero h1, body.dash .hero p {max-width:100%;}
  body.dash .hero .stat {padding:7px 10px;}
  body.dash .hero .stats {gap:6px;}
 }
