@@ -1,10 +1,10 @@
 /* ---------- צבעים ---------- */
 :root {
-  --bg: #f4f5f1; --bg2: #eceee8; --card: #ffffff; --ink: #18211c; --ink2: #3a463f; --mute: #66726b; --line: #e1e5de;
-  --acc: #1f6b55; --acc-hover: #185946; --acc-soft: #e2f0ea; --acc-ink: #ffffff;
-  --warn: #8a5a00; --warnbg: #fff4dc; --info: #275a8c; --infobg: #e7f0fa; --danger: #b3261e;
-  --ge: #1f7a5c; --ge-soft: #e0f1e9; --cc: #1b6a8c; --cc-soft: #e0eef6;
-  --im: #6b4aa0; --im-soft: #eee8f7; --bi: #a2541a; --bi-soft: #f8ecdf; --old: #66726b; --old-soft: #eceee9;
+  --bg: #f1f8fc; --bg2: #e7f3fa; --card: #ffffff; --ink: #17354d; --ink2: #34546a; --mute: #607b8c; --line: #d4e5f0;
+  --acc: #0879b4; --acc-hover: #056493; --acc-soft: #e0f5fb; --acc-ink: #ffffff;
+  --warn: #8a5a00; --warnbg: #fff4dc; --info: #126a9e; --infobg: #e5f5fd; --danger: #b3261e;
+  --ge: #087baf; --ge-soft: #e1f4fc; --cc: #168cae; --cc-soft: #e1f4fa;
+  --im: #8652b5; --im-soft: #f0e8fb; --bi: #397ca5; --bi-soft: #e7f3fb; --old: #607b8c; --old-soft: #edf3f7;
   --mark: #fff0a8;
   --shadow-sm: 0 1px 2px rgba(20, 30, 24, .06);
   --shadow: 0 1px 2px rgba(20, 30, 24, .05), 0 6px 20px rgba(20, 30, 24, .06);
@@ -465,3 +465,11 @@ body.dash .hero .helix {display:none;}
  body.dash .hero .stat {padding:7px 10px;}
  body.dash .hero .stats {gap:6px;}
 }
+
+/* Hero-matched biotechnology palette */
+:root:not([data-theme="dark"]) .top { border-bottom-color:#cfe7f6; }
+:root:not([data-theme="dark"]) .ucard { border-color:#d6e9f3; }
+:root:not([data-theme="dark"]) .ucard:hover { border-color:#86cbe9; }
+:root:not([data-theme="dark"]) .qcard { border-color:#d8eaf3; }
+:root:not([data-theme="dark"]) .btn.primary { box-shadow:0 5px 16px rgba(10,127,181,.16); }
+:root:not([data-theme="dark"]) .hero { border-color:#b6dff1; }
