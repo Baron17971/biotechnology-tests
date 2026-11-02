@@ -140,10 +140,11 @@ function sectionBanner(title,points) {
   return designedTable([[cell(para(styledText(title+"  ("+points+" נקודות)",26,"FFFFFF",true),
     {center:true,after:0}),{fill:NAVY,border:NAVY,pad:170})]],[9000]);
 }
-function questionTitle(n,pts,source) {
+function questionTitle(n,pts) {
+  // כותרת שקטה, ללא רקע תכלת או מסגרת בולטת
   return designedTable([[
-    cell(para(styledText("שאלה "+n,25,NAVY,true),{after:0}),{fill:PALE,pad:115}),
-    cell(para(styledText((pts ?? "—")+" נקודות",22,NAVY,true),{center:true,after:0}),{fill:PALE,pad:115})
+    cell(para(styledText("שאלה "+n,25,NAVY,true),{after:0}),{border:"FFFFFF",pad:35}),
+    cell(para(styledText((pts ?? "—")+" נקודות",21,SOFT),{center:true,after:0}),{border:"FFFFFF",pad:35})
   ]],[7200,1800]);
 }
 function answerRule() {
@@ -158,8 +159,7 @@ async function questionBlocks(entry, n, perms) {
   const q = QS.get(entry.id);
   const style = BANK.exams[q.exam].option_style || "hebrew";
   const pts = effectivePoints(entry);
-  const out = [para(run(" "),{before:180,after:35}),questionTitle(n,pts)];
-  if(state.showSource) out.push(para(run(srcRef(q),{color:GRAY}),{after:90}));
+  const out = [questionTitle(n,pts)];
 
   if (q.passage) {
     const ps = q.passage;
@@ -214,17 +214,17 @@ async function headerBlocks(version) {
       const res=await fetch(state.logo), buf=await res.arrayBuffer();
       const jpg=state.logo.startsWith("data:image/jpeg");
       const bmp=await createImageBitmap(new Blob([buf],{type:jpg?"image/jpeg":"image/png"}));
-      const k=Math.min(1,85/bmp.width,70/bmp.height);
+      const k=Math.min(1,145/bmp.width,130/bmp.height);
       logoParagraph=para(new D.ImageRun({type:jpg?"jpg":"png",data:buf,
         transformation:{width:Math.max(1,Math.round(bmp.width*k)),height:Math.max(1,Math.round(bmp.height*k))}}),
         {center:true,after:0});
     }catch(e){console.warn("Could not place logo",e);}
   }
   out.push(designedTable([[
-    cell([para(styledText("בית הספר",18,SOFT),{after:35}),
-      para(styledText(h.school||"שם בית הספר",26,NAVY,true),{after:0})],{pad:170}),
+    cell([para(styledText("בית הספר",19,SOFT),{after:70}),
+      para(styledText(h.school||"שם בית הספר",34,NAVY,true),{after:0})],{pad:170}),
     cell(logoParagraph,{pad:100})
-  ]],[6900,2100]));
+  ]],[6300,2700]));
   out.push(para(styledText(" ",12),{after:65}));
   out.push(para(styledText(h.exam||"מבחן בביוטכנולוגיה",38,NAVY,true),
     {center:true,before:120,after:65,keepNext:true}));
@@ -263,11 +263,12 @@ async function buildDoc(version, entries, perms) {
   for (const section of sectionedEntries(entries)) {
     if(section.label) {
       const points=section.entries.reduce((n,e)=>n+(effectivePoints(e)||0),0);
-      children.push(para(run(" "),{before:180,after:0}));
       children.push(sectionBanner(section.label,points));
-      children.push(para(run(" "),{after:60}));
     }
-    for(const entry of section.entries) children.push(...await questionBlocks(entry,number++,perms));
+    for(const [i,entry] of section.entries.entries()) {
+      if(i>0) children.push(para(run(" "),{before:90,after:0}));
+      children.push(...await questionBlocks(entry,number++,perms));
+    }
   }
   return new D.Document({
     styles: { default: { document: { run: { font: "Arial" } } } },
