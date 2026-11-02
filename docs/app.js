@@ -166,7 +166,7 @@ function renderDashboard() {
   $("results").innerHTML = `
     <section class="hero">
       <h1>מאגר שאלות בגרות בביוטכנולוגיה</h1>
-      <p>שאלות מבחינות הבגרות במערכות ביוטכנולוגיות, ממוינות לפי נושאי הלימוד. בוחרים שאלות, מתאימים סעיפים וניקוד – ומקבלים מבחן מוכן בוורד.</p>
+      <p>שאלות בגרות לפי נושאים. בוחרים, מתאימים ניקוד ומייצאים מבחן מעוצב לוורד.</p>
       <div class="stats">
         <div class="stat"><b>${qs.length}</b><span>שאלות</span></div>
         <div class="stat"><b>${years.length}</b><span>בחינות בגרות</span></div>
