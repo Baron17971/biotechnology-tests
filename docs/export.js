@@ -10,7 +10,8 @@ const FIG_MAX_W = 430; // פיקסלים של docx (1/96 אינץ')
 const FIG_MAX_H = 360;
 const GRAY = "666666";
 const FONT_SIZE = 24; // חצאי נקודה: 12pt
-const LINE_15 = 360; // רווח שורות 1.5 (240 = שורה אחת)
+const LINE_15 = 360;
+const NAVY="173553", PALE="F1F5F9", BORDER="D5E0E9", SOFT="52677D"; // רווח שורות 1.5 (240 = שורה אחת)
 
 const optLabel = (style, i) => (style === "upper-roman" ? ROMAN[i] : HEB_LETTERS[i]);
 
@@ -109,17 +110,56 @@ function bank(inter) {
 
 const box = { style: D.BorderStyle.SINGLE, color: "999999", space: 4 };
 
+/* ---------- רכיבי עיצוב מסמך ---------- */
+function cell(content,opts={}) {
+  return new D.TableCell({
+    children: Array.isArray(content) ? content : [content],
+    shading:opts.fill ? {fill:opts.fill,color:"auto",type:D.ShadingType.CLEAR} : undefined,
+    borders:{top:{style:D.BorderStyle.SINGLE,size:1,color:opts.border||BORDER},
+      bottom:{style:D.BorderStyle.SINGLE,size:1,color:opts.border||BORDER},
+      left:{style:D.BorderStyle.SINGLE,size:1,color:opts.border||BORDER},
+      right:{style:D.BorderStyle.SINGLE,size:1,color:opts.border||BORDER}},
+    margins:{top:opts.pad??140,bottom:opts.pad??140,left:170,right:170},
+    verticalAlign:D.VerticalAlign.CENTER
+  });
+}
+function designedTable(rows,widths) {
+  return new D.Table({visuallyRightToLeft:true,
+    width:{size:9000,type:D.WidthType.DXA},columnWidths:widths,
+    rows:rows.map((row)=>new D.TableRow({cantSplit:true,
+      children:row}))});
+}
+function styledText(text,size=24,color=NAVY,bold=false) {
+  return new D.TextRun({text:String(text),font:"Arial",size,color,bold,rightToLeft:true});
+}
+function dataCell(label,value) {
+  return cell([para(styledText(label,18,SOFT),{after:45}),
+    para(styledText(value || "________________",23,NAVY,true),{after:0})],{fill:PALE,pad:130});
+}
+function sectionBanner(title,points) {
+  return designedTable([[cell(para(styledText(title+"  ("+points+" נקודות)",26,"FFFFFF",true),
+    {center:true,after:0}),{fill:NAVY,border:NAVY,pad:170})]],[9000]);
+}
+function questionTitle(n,pts,source) {
+  return designedTable([[
+    cell(para(styledText("שאלה "+n,25,NAVY,true),{after:0}),{fill:PALE,pad:115}),
+    cell(para(styledText((pts ?? "—")+" נקודות",22,NAVY,true),{center:true,after:0}),{fill:PALE,pad:115})
+  ]],[7200,1800]);
+}
+function answerRule() {
+  return new D.Paragraph({bidirectional:true,children:[styledText(" ",22)],
+    spacing:{before:0,after:80,line:350},
+    border:{bottom:{style:D.BorderStyle.SINGLE,color:"AFC1D1",size:4,space:2}}});
+}
+
 /* ---------- שאלה ---------- */
 
 async function questionBlocks(entry, n, perms) {
   const q = QS.get(entry.id);
   const style = BANK.exams[q.exam].option_style || "hebrew";
   const pts = effectivePoints(entry);
-  const out = [para([
-    run(`שאלה ${n}`, { bold: true }),
-    pts != null ? run(` (${pts} נקודות)`, { bold: true }) : null,
-    state.showSource ? run(`   ${srcRef(q)}`, { color: GRAY }) : null,
-  ], { before: 320, after: 120, keepNext: true })];
+  const out = [para(run(" "),{before:180,after:35}),questionTitle(n,pts)];
+  if(state.showSource) out.push(para(run(srcRef(q),{color:GRAY}),{after:90}));
 
   if (q.passage) {
     const ps = q.passage;
@@ -154,9 +194,7 @@ async function questionBlocks(entry, n, perms) {
     const count = entry.lines == null ? Math.max(0,Math.min(20,Number(state.header.answerLines ?? 4))) : entry.lines;
     if (count > 0) {
       out.push(para(run("תשובה:",{bold:true}),{before:160,after:80}));
-      for (let i=0;i<count;i++) out.push(para(run(" "),{
-        after:140, border:{bottom:{style:D.BorderStyle.SINGLE,color:"B8C6D3",size:4,space:1}}
-      }));
+      for(let i=0;i<count;i++) out.push(answerRule());
     }
   }
   if (isOnline(q)) {
@@ -169,36 +207,46 @@ async function questionBlocks(entry, n, perms) {
 /* ---------- מסמך ---------- */
 
 async function headerBlocks(version) {
-  const h = state.header;
-  const out = [];
-  if (state.logo) {
+  const h=state.header, out=[];
+  let logoParagraph=para(styledText("לוגו בית הספר",17,SOFT),{center:true,after:0});
+  if(state.logo) {
     try {
-      const res = await fetch(state.logo);
-      const buf = await res.arrayBuffer();
-      const isJpeg = state.logo.startsWith("data:image/jpeg");
-      const bmp = await createImageBitmap(new Blob([buf], {type:isJpeg?"image/jpeg":"image/png"}));
-      const scale = Math.min(1, 110/bmp.width, 80/bmp.height);
-      out.push(para(new D.ImageRun({type:isJpeg?"jpg":"png",data:buf,
-        transformation:{width:Math.max(1,Math.round(bmp.width*scale)),height:Math.max(1,Math.round(bmp.height*scale))}}),
-        {center:true,after:100}));
-    } catch(e) { console.warn("Logo skipped",e); }
+      const res=await fetch(state.logo), buf=await res.arrayBuffer();
+      const jpg=state.logo.startsWith("data:image/jpeg");
+      const bmp=await createImageBitmap(new Blob([buf],{type:jpg?"image/jpeg":"image/png"}));
+      const k=Math.min(1,85/bmp.width,70/bmp.height);
+      logoParagraph=para(new D.ImageRun({type:jpg?"jpg":"png",data:buf,
+        transformation:{width:Math.max(1,Math.round(bmp.width*k)),height:Math.max(1,Math.round(bmp.height*k))}}),
+        {center:true,after:0});
+    }catch(e){console.warn("Could not place logo",e);}
   }
-  if (h.school) out.push(para(run(h.school,{bold:true}),{center:true,after:100}));
-  out.push(para(new D.TextRun({text:h.exam||"מבחן",font:"Arial",size:36,bold:true,color:"173553",rightToLeft:true}),{center:true,before:140,after:110,keepNext:true}));
-  if (h.topic) out.push(para(new D.TextRun({text:"נושא הבחינה: "+h.topic,font:"Arial",size:27,color:"385E78",rightToLeft:true}),{center:true,after:180}));
-  if (version==="B") out.push(para(run("טור ב׳",{bold:true}),{center:true}));
-  const info=[["שכבה/כיתה",h.cls],["תאריך",h.date],["משך הבחינה",h.duration]]
-    .filter(([,v])=>v).map(([k,v])=>k+": "+v).join("     ");
-  if(info) out.push(para(run(info),{center:true,after:110}));
-  out.push(para(run("שם התלמיד/ה: "+(h.student || "________________________"),{bold:true}),{after:150}));
-  out.push(para(run("סך הנקודות: 100",{bold:true}),{after:90}));
-  if (h.instructions) {
-    out.push(para(run("הוראות:",{bold:true}),{before:100,after:40}));
-    out.push(...lines(h.instructions));
+  out.push(designedTable([[
+    cell([para(styledText("בית הספר",18,SOFT),{after:35}),
+      para(styledText(h.school||"שם בית הספר",26,NAVY,true),{after:0})],{pad:170}),
+    cell(logoParagraph,{pad:100})
+  ]],[6900,2100]));
+  out.push(para(styledText(" ",12),{after:65}));
+  out.push(para(styledText(h.exam||"מבחן בביוטכנולוגיה",38,NAVY,true),
+    {center:true,before:120,after:65,keepNext:true}));
+  if(h.topic) out.push(para(styledText("נושא: "+h.topic,23,SOFT),
+    {center:true,after:140}));
+  if(version==="B") out.push(para(styledText("טור ב׳",25,NAVY,true),
+    {center:true,after:90}));
+  out.push(designedTable([
+    [dataCell("שכבת גיל / כיתה",h.cls),dataCell("תאריך",h.date)],
+    [dataCell("שם התלמיד/ה",h.student||"____________________"),
+      dataCell("משך הבחינה",h.duration)]
+  ],[4500,4500]));
+  out.push(para(styledText("סך הכול: 100 נקודות",22,NAVY,true),
+    {before:130,after:90}));
+  if(h.instructions) {
+    out.push(para(styledText("הנחיות:",21,NAVY,true),{after:40}));
+    out.push(...lines(h.instructions,{after:70}));
   }
-  out.push(para(run(" "),{border:{bottom:{style:D.BorderStyle.SINGLE,color:"284D6D",size:7,space:2}},after:150}));
+  out.push(para(run(" "),{after:80}));
   return out;
 }
+
 function sectionedEntries(entries) {
   if (state.header.layout !== "sections") return [{label:"",entries}];
   const types=[["mc","חלק א׳ — שאלות רבות ברירה"],["tf","חלק ב׳ — נכון / לא נכון"],["open","חלק ג׳ — שאלות פתוחות"]];
@@ -215,10 +263,9 @@ async function buildDoc(version, entries, perms) {
   for (const section of sectionedEntries(entries)) {
     if(section.label) {
       const points=section.entries.reduce((n,e)=>n+(effectivePoints(e)||0),0);
-      children.push(para(new D.TextRun({text:section.label+" ("+points+" נקודות)",font:"Arial",size:27,bold:true,color:"FFFFFF",rightToLeft:true}),{
-        before:280,after:180,keepNext:true,
-        shading:{type:D.ShadingType.CLEAR,color:"auto",fill:"173553"}
-      }));
+      children.push(para(run(" "),{before:180,after:0}));
+      children.push(sectionBanner(section.label,points));
+      children.push(para(run(" "),{after:60}));
     }
     for(const entry of section.entries) children.push(...await questionBlocks(entry,number++,perms));
   }
