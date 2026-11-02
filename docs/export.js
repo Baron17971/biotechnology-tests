@@ -35,6 +35,7 @@ function para(children, o = {}) {
     spacing: { before: o.before ?? 0, after: o.after ?? 80, line: LINE_15 },
     keepNext: o.keepNext,
     border: o.border,
+    shading: o.shading,
   });
 }
 
@@ -183,8 +184,8 @@ async function headerBlocks(version) {
     } catch(e) { console.warn("Logo skipped",e); }
   }
   if (h.school) out.push(para(run(h.school,{bold:true}),{center:true,after:100}));
-  out.push(para(run(h.exam || "מבחן",{bold:true}),{center:true,before:120,after:90}));
-  if (h.topic) out.push(para(run("נושא הבחינה: "+h.topic),{center:true,after:130}));
+  out.push(para(new D.TextRun({text:h.exam||"מבחן",font:"Arial",size:36,bold:true,color:"173553",rightToLeft:true}),{center:true,before:140,after:110,keepNext:true}));
+  if (h.topic) out.push(para(new D.TextRun({text:"נושא הבחינה: "+h.topic,font:"Arial",size:27,color:"385E78",rightToLeft:true}),{center:true,after:180}));
   if (version==="B") out.push(para(run("טור ב׳",{bold:true}),{center:true}));
   const info=[["שכבה/כיתה",h.cls],["תאריך",h.date],["משך הבחינה",h.duration]]
     .filter(([,v])=>v).map(([k,v])=>k+": "+v).join("     ");
@@ -214,9 +215,9 @@ async function buildDoc(version, entries, perms) {
   for (const section of sectionedEntries(entries)) {
     if(section.label) {
       const points=section.entries.reduce((n,e)=>n+(effectivePoints(e)||0),0);
-      children.push(para(run(section.label+" ("+points+" נקודות)",{bold:true}),{
-        before:240,after:160,keepNext:true,
-        border:{bottom:{style:D.BorderStyle.SINGLE,color:"284D6D",size:6,space:2}}
+      children.push(para(new D.TextRun({text:section.label+" ("+points+" נקודות)",font:"Arial",size:27,bold:true,color:"FFFFFF",rightToLeft:true}),{
+        before:280,after:180,keepNext:true,
+        shading:{type:D.ShadingType.CLEAR,color:"auto",fill:"173553"}
       }));
     }
     for(const entry of section.entries) children.push(...await questionBlocks(entry,number++,perms));
